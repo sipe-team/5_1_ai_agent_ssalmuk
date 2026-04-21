@@ -1,0 +1,204 @@
+
+# Week 2: 기술 스택 설계
+
+## 기술 스택 개요
+
+| 영역 | 기술 | 비고 |
+| --- | --- | --- |
+| 에이전트 런타임 | Claude Code (기존) | 슬래시 커맨드 + 훅 + 메모리 — 별도 오케스트레이터 불필요 |
+| MCP 서버 | Python 3.11+ | 벡터 검색 도구 제공 (server.py 단일 파일) |
+| 벡터 DB | ChromaDB (인프로세스) | 로컬 파일 저장 (`~/.claude/vector-db/`), 서버 불필요 |
+| 임베딩 | OpenAI text-embedding-3-small | 세션 요약 벡터화 (1536차원) |
+| 데이터 저장소 | Obsidian Vault (Markdown) | 원본 세션 기록 (기존 유지) |
+| CLI 연동 | Claude Code Commands | `/save`, `/load` (기존, 소폭 수정) |
+
+### 이전 설계 대비 변경 사항
+
+| 항목 | 이전 (v1) | 현재 (v2) | 변경 이유 |
+| --- | --- | --- | --- |
+| 에이전트 구조 | Python 에이전트 5개 | MCP 도구 2개 | Claude Code 자체가 추출/분류/저장을 이미 수행 |
+| 오케스트레이션 | LangGraph | Claude Code 네이티브 | 별도 프레임워크 불필요 — 슬래시 커맨드가 워크플로우 |
+| API 서버 | FastAPI | 없음 | MCP stdio 통신, HTTP 서버 불필요 |
+| 컨테이너 | Docker | 없음 | 로컬 `.venv`로 충분 |
+| 프롬프트 관리 | `prompts/` 디렉토리 | 슬래시 커맨드 내 포함 | `save.md`, `load.md`가 곧 프롬프트 |
+
+---
+
+## 아키텍처
+
+```
+┌─────────────────────────────────────────────┐
+│              Claude Code                     │
+│                                              │
+│  /save ──→ Claude 대화 분석                   │
+│              ├── Obsidian 파일 저장 (기존)      │
+│              └── store_context (MCP 도구 호출)  │
+│                                              │
+│  /load ──→ search_context (MCP 도구 호출)      │
+│              └── 유사 세션 반환 → Claude가 요약   │
+└──────────────────┬──────────────────────────┘
+                   │ MCP 프로토콜 (stdio)
+                   ▼
+┌──────────────────────────────────────────────┐
+│     context-memory MCP 서버 (Python)          │
+│                                              │
+│  도구 2개:                                    │
+│  ├── store_context(title, summary, tags)     │
+│  └── search_context(query, top_k)            │
+│                                              │
+│  내부:                                        │
+│  ├── OpenAI Embeddings (text-embedding-3-small)│
+│  └── ChromaDB (로컬 파일, ~/.claude/vector-db/) │
+└──────────────────────────────────────────────┘
+```
+
+핵심 원칙:
+- Claude Code가 **오케스트레이터** 역할 (추출, 분류, 요약은 Claude가 직접 수행)
+- MCP 서버는 **벡터 연산만** 담당 (임베딩 생성, 저장, 유사도 검색)
+- 기존 `/save`, `/load` 커맨드 구조를 최대한 유지
+
+---
+
+## MCP 도구 상세
+
+### store_context — 세션 맥락 벡터 저장
+
+`/save` 시 Claude가 Obsidian 저장 후 호출.
+
+**입력:**
+
+```json
+{
+  "title": "auth 모듈 세션 토큰 버그 수정",
+  "summary": "session.js 237번째 줄 직접 수정 시 토큰 만료 로직 깨짐. AuthService 통해서 접근해야 함.",
+  "tags": ["auth", "session", "bug"],
+  "project": "D:\\Tsl_server",
+  "source_file": "2026-04-21_15-30_auth-버그수정.md"
+}
+```
+
+**동작:**
+1. `title + summary`를 결합하여 OpenAI 임베딩 생성
+2. ChromaDB에 벡터 + 메타데이터(`tags`, `project`, `source_file`) 저장
+
+### search_context — 의미 기반 유사 세션 검색
+
+`/load <키워드>` 시 Claude가 호출.
+
+**입력:**
+
+```json
+{
+  "query": "인증 관련 세션 토큰 문제",
+  "project": "D:\\Tsl_server",
+  "top_k": 5
+}
+```
+
+**출력:**
+
+```json
+{
+  "results": [
+    {
+      "title": "auth 모듈 세션 토큰 버그 수정",
+      "summary": "session.js 237번째 줄 직접 수정 시...",
+      "source_file": "2026-04-21_15-30_auth-버그수정.md",
+      "similarity": 0.87
+    }
+  ]
+}
+```
+
+- "인증" 검색 → "auth"로 저장된 항목도 유사도 매칭
+- `project` 필터로 현재 프로젝트 관련 맥락만 반환
+- Claude가 결과의 `source_file`을 Read로 읽어 상세 내용 제공
+
+---
+
+## 기존 커맨드 연동 변경
+
+### `/save` 커맨드 (`save.md`)
+
+```
+현재: 대화 분석 → Obsidian 파일 저장 → 끝
+변경: 대화 분석 → Obsidian 파일 저장 → store_context 호출 → 끝
+```
+
+추가할 내용: "저장 완료 후, `store_context` 도구로 제목·요약·태그를 벡터 DB에도 저장하세요."
+
+### `/load` 커맨드 (`load.md`)
+
+```
+현재: Grep으로 정확한 키워드 매칭
+변경: search_context로 의미 기반 검색 → 결과의 source_file을 Read로 읽기
+```
+
+날짜 검색(`/load 2026-04-21`)과 인자 없는 검색(`/load`)은 기존 방식 유지. **키워드 검색만** 벡터로 교체.
+
+### MCP 서버 등록 (`settings.json`)
+
+```json
+{
+  "mcpServers": {
+    "context-memory": {
+      "command": "python",
+      "args": ["C:/Users/yerin.park/.claude/mcp/context-memory/server.py"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+---
+
+## 프로젝트 구조
+
+```
+~/.claude/mcp/context-memory/
+├── server.py          # MCP 서버 (단일 파일, ~100줄)
+├── requirements.txt   # chromadb, mcp, openai
+└── .venv/             # Python 가상환경
+```
+
+```
+~/.claude/vector-db/       # ChromaDB 데이터 (자동 생성)
+~/.claude/commands/
+├── save.md                # /save 커맨드 (수정)
+└── load.md                # /load 커맨드 (수정)
+```
+
+---
+
+## MVP 현황 (Week 1 결과)
+
+| 항목 | 상태 | 내용 |
+| --- | --- | --- |
+| `/save` 커맨드 | 생성 완료 | Claude가 대화 분석 후 Obsidian에 요약 저장 |
+| `/load` 커맨드 | 생성 완료 | 최근 세션 불러와 컨텍스트 반영 |
+| 메모리 시스템 | 활용 중 | `~/.claude/projects/` 하위 자동 메모리 |
+| 벡터 검색 | 미구현 | MCP 서버 구현 시 추가 |
+| 자동 주입 | 미구현 | 벡터 검색 안정화 후 SessionStart hook 연동 |
+
+---
+
+## 구현 범위
+
+전체 구현에 필요한 작업:
+
+1. **`server.py`** — MCP 서버 (store_context, search_context 도구 2개)
+2. **`save.md` 수정** — store_context 호출 지시 추가 (1줄)
+3. **`load.md` 수정** — 키워드 검색을 search_context로 교체
+4. **`settings.json`** — MCP 서버 등록
+
+---
+
+## 고려 사항
+
+- **비용 최적화**: 맥락 추출/분류는 Claude Code가 수행 (추가 API 비용 없음), 임베딩만 OpenAI 과금 (text-embedding-3-small: $0.02/1M 토큰)
+- **데이터 보안**: 세션 로그에 코드/비밀키 포함 가능 → 벡터 저장 전 민감 정보 필터링 필요
+- **로컬 우선**: ChromaDB 인프로세스 + Obsidian 로컬 — 외부 서비스 의존은 임베딩 API만
+- **점진적 확장**: 벡터 검색 안정화 → SessionStart hook 자동 주입 → 실시간 감지 순
+- **맥락 유효성**: 리팩토링 후 무효화된 맥락 — 관련 파일 변경 시 만료 처리 (추후)
