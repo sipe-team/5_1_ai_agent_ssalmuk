@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>코인 예측 게임 v2 — 디자인 갤러리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== 1. Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+/* ===== 2. Tokens ===== */
+:root {
+  --c-bg:        oklch(0.13 0.005 270);
+  --c-surface:   oklch(0.17 0.008 270);
+  --c-surface-2: oklch(0.21 0.008 270);
+  --c-surface-3: oklch(0.26 0.010 270);
+  --c-border:    oklch(0.30 0.010 270);
+  --c-divider:   oklch(0.24 0.008 270);
+  --c-text:        oklch(0.96 0.005 270);
+  --c-text-muted:  oklch(0.70 0.010 270);
+  --c-text-subtle: oklch(0.55 0.010 270);
+  --c-up:        oklch(0.66 0.215 27);
+  --c-up-bg:     oklch(0.30 0.080 27);
+  --c-down:      oklch(0.62 0.180 250);
+  --c-down-bg:   oklch(0.30 0.080 250);
+  --c-bronze:    oklch(0.62 0.110 50);
+  --c-silver:    oklch(0.78 0.005 270);
+  --c-gold:      oklch(0.78 0.150 90);
+  --c-platinum:  oklch(0.84 0.060 200);
+  --c-diamond:   oklch(0.88 0.130 220);
+  --c-success:   oklch(0.70 0.170 145);
+  --c-warn:      oklch(0.78 0.150 80);
+  --c-info:      oklch(0.72 0.130 230);
+
+  --font-sans: "Spoqa Han Sans Neo", "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "D2Coding", ui-monospace, monospace;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  --shadow-pop: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* ===== 3. Typography ===== */
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--c-text);
+  background: var(--c-bg);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  min-height: 100vh;
+}
+.t-mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1, "zero" 1; }
+
+/* ===== 4. Page Layout ===== */
+.page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+}
+.page__header { margin-bottom: 48px; max-width: 800px; }
+.page__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--c-text-subtle);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.page__title {
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.2;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.page__title strong {
+  background: linear-gradient(180deg, transparent 60%, var(--c-up-bg) 60%);
+  padding: 0 4px;
+}
+.page__sub {
+  font-size: 15px;
+  color: var(--c-text-muted);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+.page__meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-divider);
+  font-size: 12px;
+  color: var(--c-text-muted);
+  flex-wrap: wrap;
+}
+.page__meta a { color: var(--c-info); text-decoration: none; }
+.page__meta a:hover { text-decoration: underline; }
+
+/* ===== 5. Gallery (4 mobile frames) ===== */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 32px;
+  align-items: start;
+}
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.frame__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 8px;
+}
+.frame__label-name { font-size: 13px; font-weight: 600; }
+.frame__label-id { font-size: 11px; color: var(--c-text-subtle); font-family: var(--font-mono); }
+.frame__device {
+  background: var(--c-surface);
+  border-radius: 32px;
+  padding: 8px;
+  border: 1px solid var(--c-border);
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.frame__screen {
+  background: var(--c-bg);
+  border-radius: 24px;
+  overflow: hidden;
+  height: 760px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--c-divider);
+}
+.frame__statusbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 20px 0;
+  font-size: 11px;
+  color: var(--c-text-muted);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* ===== 6. App Components — common ===== */
+.appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--c-divider);
+}
+.appbar__back { width: 32px; height: 32px; display: grid; place-items: center; color: var(--c-text-muted); font-size: 16px; }
+.appbar__title { font-size: 14px; font-weight: 600; }
+.appbar__right { display: flex; gap: 8px; align-items: center; }
+
+.tier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+}
+.tier-chip--gold { color: var(--c-gold); border-color: var(--c-gold); }
+.tier-chip--platinum { color: var(--c-platinum); border-color: var(--c-platinum); }
+.tier-chip--diamond { color: var(--c-diamond); border-color: var(--c-diamond); }
+.tier-chip__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* Coin toggle */
+.coin-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  padding: 4px;
+  margin: 16px;
+  gap: 4px;
+}
+.coin-toggle__btn {
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  border-radius: var(--r-sm);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+.coin-toggle__btn--active {
+  background: var(--c-surface-3);
+  color: var(--c-text);
+}
+.coin-toggle__symbol { font-family: var(--font-mono); font-weight: 700; font-size: 12px; }
+
+/* Price block */
+.price-block {
+  padding: 0 16px 16px;
+}
+.price-block__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.price-block__price {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+}
+.price-block__delta {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.price-block__delta--up { color: var(--c-up); }
+.price-block__delta--down { color: var(--c-down); }
+.price-block__deadline {
+  font-size: 11px;
+  color: var(--c-text-subtle);
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
+
+/* Sparkline */
+.sparkline {
+  margin: 0 16px;
+  height: 64px;
+  background:
+    linear-gradient(180deg, color-mix(in oklch, var(--c-up) 18%, transparent) 0%, transparent 100%);
+  border-radius: var(--r-sm);
+  position: relative;
+  overflow: hidden;
+}
+.sparkline svg { width: 100%; height: 100%; }
+
+/* CTA buttons */
+.cta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 16px;
+}
+.cta {
+  padding: 14px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  transition: filter 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cta:hover { filter: brightness(1.08); }
+.cta--up { background: var(--c-up); color: oklch(0.16 0.02 27); }
+.cta--down { background: var(--c-down); color: oklch(0.16 0.02 250); }
+.cta--ghost { background: transparent; color: var(--c-text); border: 1px solid var(--c-border); }
+.cta--full { grid-column: 1 / -1; }
+.cta__arrow { font-size: 16px; font-weight: 700; }
+
+/* Section */
+.sect {
+  padding: 0 16px;
+  margin-top: 8px;
+}
+.sect__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.sect__title { font-size: 12px; font-weight: 600; color: var(--c-text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.sect__count { font-size: 11px; color: var(--c-text-subtle); font-family: var(--font-mono); }
+
+/* Insight grid (8 cards) */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-divider);
+  border-radius: var(--r-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 92px;
+}
+.card__name {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.card__signal {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.card__dir {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+.card__dir--up { color: var(--c-up); }
+.card__dir--down { color: var(--c-down); }
+.card__pct {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.card__meta {
+  font-size: 10px;
+  color: var(--c-text-subtle);
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card--locked {
+  opacity: 0.55;
+  background: transparent;
+  border-style: dashed;
+}
+.card__locked-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-warn);
+  letter-spacing: 0.04em;
+}
+
+/* Dot indicator for stale */
+.card__stale {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.card__stale-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--c-success);
+}
+.card__stale--old .card__stale-dot { background: var(--c-warn); }
+
+/* Result sheet */
+.result {
+  padding: 24px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+.result__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: 16px auto 0;
+  font-size: 40px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.result__icon--hit {
+  background: var(--c-up-bg);
+  color: var(--c-up);
+}
+.result__icon--miss {
+  background: oklch(0.20 0.005 270);
+  color: var(--c-text-muted);
+}
+.result__title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+}
+.result__sub {
+  text-align: center;
+  font-size: 13px;
+  color: var(--c-text-muted);
+  margin-top: -8px;
+  font-family: var(--font-mono);
+}
+.result__sub-strong--up { color: var(--c-up); }
+.result__sub-strong--down { color: var(--c-down); }
+
+.score-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-divider);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.score-card__label { font-size: 11px; color: var(--c-text-muted); }
+.score-card__value-row { display: flex; align-items: baseline; gap: 8px; }
+.score-card__value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; }
+.score-card__delta { font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+.score-card__progress {
+  height: 6px;
+  background: var(--c-surface-2);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.score-card__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-gold), var(--c-platinum));
+  border-radius: var(--r-pill);
+}
+.score-card__hint { font-size: 11px; color: var(--c-text-subtle); }
+
+/* Channel grid (S-04 비교) */
+.compare {
+  padding: 16px;
+}
+.compare__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  align-items: baseline;
+}
+.compare__title { font-size: 12px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.compare__legend {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--c-text-subtle);
+}
+.compare__legend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+.compare__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cmp-card {
+  border-radius: var(--r-md);
+  padding: 10px;
+  border: 1px solid;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cmp-card--right {
+  background: oklch(0.22 0.060 145 / 0.4);
+  border-color: oklch(0.45 0.10 145);
+}
+.cmp-card--wrong {
+  background: oklch(0.20 0.020 270 / 0.5);
+  border-color: var(--c-divider);
+  opacity: 0.65;
+}
+.cmp-card__name { font-weight: 600; color: var(--c-text); font-size: 11px; }
+.cmp-card__pred { font-family: var(--font-mono); font-size: 13px; }
+.cmp-card__pred--up { color: var(--c-up); }
+.cmp-card__pred--down { color: var(--c-down); }
+.cmp-card__verdict {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.cmp-card--right .cmp-card__verdict { color: var(--c-success); }
+.cmp-card--wrong .cmp-card__verdict { color: var(--c-text-subtle); }
+
+.compare__footer {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  color: var(--c-text-muted);
+  line-height: 1.6;
+}
+.compare__footer strong { color: var(--c-text); }
+
+/* Bottom CTA */
+.sheet-cta {
+  padding: 12px 16px 20px;
+  border-top: 1px solid var(--c-divider);
+}
+
+/* ===== 7. Frame body padding ===== */
+.frame__body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar styling */
+.frame__body::-webkit-scrollbar { width: 4px; }
+.frame__body::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 99px; }
+
+/* Notes block */
+.notes {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--c-divider);
+  max-width: 800px;
+  display: grid;
+  gap: 16px;
+}
+.notes__title { font-size: 12px; font-weight: 600; color: var(--c-text-subtle); letter-spacing: 0.08em; text-transform: uppercase; }
+.notes__list { display: grid; gap: 8px; font-size: 13px; color: var(--c-text-muted); list-style: none; padding: 0; }
+.notes__list li { padding-left: 16px; position: relative; }
+.notes__list li::before { content: "·"; position: absolute; left: 4px; color: var(--c-text-subtle); }
+
+/* ===== 8. Responsive ===== */
+@media (max-width: 720px) {
+  .page { padding: 32px 16px 64px; }
+  .gallery { grid-template-columns: 1fr; }
+  .frame__device { max-width: 100%; }
+}
+
+/* ===== 9. Accessibility ===== */
+:focus-visible {
+  outline: 2px solid var(--c-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<main class="page">
+  <header class="page__header">
+    <p class="page__eyebrow">Upbit · Coin Prediction · v2</p>
+    <h1 class="page__title">하루에 한 번, <strong>오를지 내릴지</strong>를 찍어보세요.</h1>
+    <p class="page__sub">8개 시그널 카드로 결정에 도움이 되는 데이터를 모았습니다. 24시간 후 결과로 적중률이 누적되어 5단계 티어가 부여됩니다. 베팅 없음, 1일 1회 무료.</p>
+    <div class="page__meta">
+      <span>📄 PRD: <a href="../../docs/specs/코인예측게임/prd.md">docs/specs/코인예측게임/prd.md</a></span>
+      <span>🎨 Design System: <a href="../../docs/DESIGN.md">docs/DESIGN.md</a></span>
+      <span>📅 2026-05-01</span>
+    </div>
+  </header>
+
+  <section class="gallery">
+
+    <!-- ============================================================
+         FRAME 1 — S-01 예측 메인 (BTC 컨텍스트, 미예측 상태)
+         ============================================================ -->
+    <article class="frame">
+      <header class="frame__label">
+        <span class="frame__label-name">예측 메인 — BTC 미예측 상태</span>
+        <span class="frame__label-id">S-01</span>
+      </header>
+      <div class="frame__device">
+        <div class="frame__screen">
+          <div class="frame__statusbar"><span>09:24</span><span>5G ▮▮▮▮</span></div>
+          <div class="frame__body">
+            <div class="appbar">
+              <button class="appbar__back" aria-label="뒤로">←</button>
+              <div class="appbar__title">오늘의 예측</div>
+              <div class="appbar__right">
+                <span class="tier-chip tier-chip--gold"><span class="tier-chip__dot"></span>골드</span>
+              </div>
+            </div>
+
+            <div class="coin-toggle" role="tablist">
+              <button class="coin-toggle__btn coin-toggle__btn--active" role="tab" aria-selected="true">
+                <span class="coin-toggle__symbol">BTC</span> 비트코인
+              </button>
+              <button class="coin-toggle__btn" role="tab" aria-selected="false">
+                <span class="coin-toggle__symbol">ETH</span> 이더리움
+              </button>
+            </div>
+
+            <div class="price-block">
+              <div class="price-block__row">
+                <span class="price-block__price t-mono">89,200,000</span>
+                <span class="price-block__delta price-block__delta--up t-mono">+2.31%</span>
+              </div>
+              <div class="price-block__deadline">마감 시각 · 내일 09:24 KST · 예측 시각 +24시간</div>
+            </div>
+
+            <div class="sparkline" aria-hidden="true">
+              <svg viewBox="0 0 100 32" preserveAspectRatio="none">
+                <path d="M0,22 L10,18 L20,24 L30,16 L40,20 L50,12 L60,14 L70,8 L80,10 L90,6 L100,4"
+                      fill="none" stroke="oklch(0.66 0.215 27)" stroke-width="1.5"/>
+                <path d="M0,22 L10,18 L20,24 L30,16 L40,20 L50,12 L60,14 L70,8 L80,10 L90,6 L100,4 L100,32 L0,32 Z"
+                      fill="oklch(0.66 0.215 27 / 0.18)"/>
+              </svg>
+            </div>
+
+            <div class="cta-row">
+              <button class="cta cta--up"><span class="cta__arrow">↑</span> 오른다</button>
+              <button class="cta cta--down"><span class="cta__arrow">↓</span> 내린다</button>
+            </div>
+
+            <div class="sect">
+              <div class="sect__head">
+                <span class="sect__title">8개 시그널</span>
+                <span class="sect__count">P0 6 · P1 2</span>
+              </div>
+              <div class="cards">
+                <div class="card">
+                  <span class="card__name">업비트 데이터랩</span>
+                  <div class="card__signal">
+                    <span class="card__dir card__dir--up">↑</span>
+                    <span class="card__pct t-mono">2.3%</span>
+                  </div>
+                  <div class="card__meta"><span>김치 프리미엄</span><span class="card__stale"><span class="card__stale-dot"></span>2분</span></div>
+                </div>
+                <div class="card">
+                  <span class="card__name">자체 커뮤니티</span>
+                  <div class="card__signal">
+                    <span class="card__dir card__dir--up">↑</span>
+                    <span class="card__pct t-mono">62%</span>
+                  </div>
+                  <div class="card__meta"><span>1,243명 투표</span><span class="card__stale"><span class="card__stale-dot"></span>1분</span></div>
+                </div>
+                <div class="card">
+                  <span class="card__name">예측 고수 픽</span>
+                  <div class="card__signal">
+                    <span class="card__dir card__dir--up">↑</span>
+                    <span class="card__pct t-mono">70%</span>
+                  </div>
+                  <div class="card__meta"><span>다이아 30명</span><span class="card__stale"><span class="card__stale-dot"></span>3분</span></div>
+                </div>
+                <div class="card">
+                  <span class="card__name">관련 기사</span>
+                  <div class="card__signal">
+                    <span class="card__dir card__dir--up">↑</span>
+                    <span class="card__pct t-mono">우세</span>
+                  </div>
+                  <div class="card__meta"><span>5건 · 24h</span><span class="card__stale"><span class="card__stale-dot"></span>15분</span></div>
+                </div>
+                <div class="card">
+                  <span class="card__name">X · 텔레그램</span>
+                  <div class="card__signal">
+                    <span class="card__dir card__dir--up">↑</span>
+                    <span class="card__pct t-mono">58%</span>
+                  </div>
+                  <div class="card__meta"><span>1.2k 멘션</span><span class="card__stale card__stale--old"><span class="card__stale-dot"></span>8분</span></div>
+                </div>
+                <div class="card">
+                  <span class="card__name">폴리마켓</span>
+                  <div class="card__signal">
+                    <span class="card__dir card__dir--up">↑</span>
+                    <span class="card__pct t-mono">67%</span>
+                  </div>
+                  <div class="card__meta"><span>$2M 거래량</span><span class="card__stale"><span class="card__stale-dot"></span>4분</span></div>
+                </div>
+                <div class="card card--locked">
+                  <span class="card__name">공식 코인사이트</span>
+                  <div class="card__signal">
+                    <span class="card__locked-tag">P1 · 2차 출시</span>
+                  </div>
+                  <div class="card__meta"><span>곧 출시</span></div>
+                </div>
+                <div class="card card--locked">
+                  <span class="card__name">온체인 (고래)</span>
+                  <div class="card__signal">
+                    <span class="card__locked-tag">P1 · 2차 출시</span>
+                  </div>
+                  <div class="card__meta"><span>곧 출시</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height: 24px"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============================================================
+         FRAME 2 — S-03 결과 시트 (적중)
+         ============================================================ -->
+    <article class="frame">
+      <header class="frame__label">
+        <span class="frame__label-name">결과 시트 — 적중</span>
+        <span class="frame__label-id">S-03 · HIT</span>
+      </header>
+      <div class="frame__device">
+        <div class="frame__screen">
+          <div class="frame__statusbar"><span>09:25</span><span>5G ▮▮▮▮</span></div>
+          <div class="frame__body">
+            <div class="appbar">
+              <button class="appbar__back" aria-label="닫기">×</button>
+              <div class="appbar__title">결과 발표</div>
+              <div class="appbar__right" aria-hidden="true" style="width:32px"></div>
+            </div>
+
+            <div class="result">
+              <div class="result__icon result__icon--hit">✓</div>
+              <h2 class="result__title">적중!</h2>
+              <p class="result__sub">BTC <span class="result__sub-strong--up t-mono">+1.81%</span> 마감 · 24시간 예측</p>
+
+              <div class="score-card">
+                <span class="score-card__label">누적 적중률 (최근 90일)</span>
+                <div class="score-card__value-row">
+                  <span class="score-card__value t-mono">62%</span>
+                  <span class="score-card__delta" style="color: var(--c-up)">+2.0%p</span>
+                </div>
+                <div class="score-card__progress" aria-label="다음 티어까지 7회">
+                  <div class="score-card__progress-fill" style="width: 65%"></div>
+                </div>
+                <span class="score-card__hint">
+                  <span class="tier-chip tier-chip--gold" style="margin-right: 6px"><span class="tier-chip__dot"></span>골드</span>
+                  → 다음 티어까지 <span class="t-mono">7회</span> 남음
+                </span>
+              </div>
+
+              <div class="score-card">
+                <span class="score-card__label">예측 가격 → 마감 가격</span>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+                  <div>
+                    <div style="font-size: 11px; color: var(--c-text-subtle)">예측 시점</div>
+                    <div class="t-mono" style="font-size: 16px; font-weight: 600">₩89,200,000</div>
+                  </div>
+                  <span style="color: var(--c-text-subtle)">→</span>
+                  <div style="text-align: right">
+                    <div style="font-size: 11px; color: var(--c-text-subtle)">24시간 후 마감</div>
+                    <div class="t-mono" style="font-size: 16px; font-weight: 700; color: var(--c-up)">₩90,815,000</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="flex: 1"></div>
+            </div>
+
+            <div class="sheet-cta">
+              <div class="cta-row">
+                <button class="cta cta--down cta--full">
+                  <span class="cta__arrow">↓</span> 지금 BTC 매도하러 가기
+                </button>
+              </div>
+              <button class="cta cta--ghost cta--full" style="margin-top: 6px">결과 카드 공유 (P2)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============================================================
+         FRAME 3 — S-03 결과 시트 (미적중)
+         ============================================================ -->
+    <article class="frame">
+      <header class="frame__label">
+        <span class="frame__label-name">결과 시트 — 미적중</span>
+        <span class="frame__label-id">S-03 · MISS</span>
+      </header>
+      <div class="frame__device">
+        <div class="frame__screen">
+          <div class="frame__statusbar"><span>09:25</span><span>5G ▮▮▮▮</span></div>
+          <div class="frame__body">
+            <div class="appbar">
+              <button class="appbar__back" aria-label="닫기">×</button>
+              <div class="appbar__title">결과 발표</div>
+              <div class="appbar__right" aria-hidden="true" style="width:32px"></div>
+            </div>
+
+            <div class="result">
+              <div class="result__icon result__icon--miss">—</div>
+              <h2 class="result__title">아쉽게 빗나갔어요</h2>
+              <p class="result__sub">BTC <span class="result__sub-strong--down t-mono">−0.52%</span> 마감 · 24시간 예측</p>
+
+              <div class="score-card">
+                <span class="score-card__label">누적 적중률 (최근 90일)</span>
+                <div class="score-card__value-row">
+                  <span class="score-card__value t-mono">58%</span>
+                  <span class="score-card__delta" style="color: var(--c-down)">−1.5%p</span>
+                </div>
+                <div class="score-card__progress">
+                  <div class="score-card__progress-fill" style="width: 40%; background: var(--c-text-subtle)"></div>
+                </div>
+                <span class="score-card__hint">
+                  현재 <span class="tier-chip tier-chip--gold" style="margin: 0 4px"><span class="tier-chip__dot"></span>골드</span> 유지 · 다음 예측에서 만회해봐요
+                </span>
+              </div>
+
+              <div class="score-card" style="background: oklch(0.22 0.060 145 / 0.2); border-color: oklch(0.45 0.10 145 / 0.6);">
+                <span class="score-card__label" style="color: var(--c-success)">ⓘ 학습 포인트</span>
+                <p style="font-size: 13px; line-height: 1.6">8개 채널 중 <strong style="color: var(--c-text)">3개</strong>가 정답에 가까웠습니다. 다음 예측 전 어떤 시그널이 맞았는지 확인하세요.</p>
+              </div>
+
+              <div style="flex: 1"></div>
+            </div>
+
+            <div class="sheet-cta">
+              <button class="cta cta--ghost cta--full">
+                내가 놓친 시그널 보기 →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============================================================
+         FRAME 4 — S-04 채널 정답 비교
+         ============================================================ -->
+    <article class="frame">
+      <header class="frame__label">
+        <span class="frame__label-name">채널 정답 비교 — 학습 화면</span>
+        <span class="frame__label-id">S-04</span>
+      </header>
+      <div class="frame__device">
+        <div class="frame__screen">
+          <div class="frame__statusbar"><span>09:26</span><span>5G ▮▮▮▮</span></div>
+          <div class="frame__body">
+            <div class="appbar">
+              <button class="appbar__back" aria-label="뒤로">←</button>
+              <div class="appbar__title">내가 놓친 시그널</div>
+              <div class="appbar__right" aria-hidden="true" style="width:32px"></div>
+            </div>
+
+            <div style="padding: 16px 16px 0">
+              <p style="font-size: 13px; color: var(--c-text-muted); line-height: 1.6">
+                BTC 마감가 <span class="t-mono" style="color: var(--c-down); font-weight: 600">−0.52%</span> · 정답은 <strong style="color: var(--c-down)">↓ 하락</strong>이었습니다.
+              </p>
+            </div>
+
+            <div class="compare">
+              <div class="compare__head">
+                <span class="compare__title">채널별 예측</span>
+                <div class="compare__legend">
+                  <span><span class="compare__legend-dot" style="background: oklch(0.45 0.10 145)"></span>정답</span>
+                  <span><span class="compare__legend-dot" style="background: var(--c-divider)"></span>오답</span>
+                </div>
+              </div>
+              <div class="compare__cards">
+                <div class="cmp-card cmp-card--wrong">
+                  <span class="cmp-card__name">업비트 데이터랩</span>
+                  <span class="cmp-card__pred cmp-card__pred--up t-mono">↑ 2.3%</span>
+                  <span class="cmp-card__verdict">오답</span>
+                </div>
+                <div class="cmp-card cmp-card--wrong">
+                  <span class="cmp-card__name">자체 커뮤니티</span>
+                  <span class="cmp-card__pred cmp-card__pred--up t-mono">↑ 62%</span>
+                  <span class="cmp-card__verdict">오답</span>
+                </div>
+                <div class="cmp-card cmp-card--right">
+                  <span class="cmp-card__name">예측 고수 픽</span>
+                  <span class="cmp-card__pred cmp-card__pred--down t-mono">↓ 60%</span>
+                  <span class="cmp-card__verdict">✓ 정답</span>
+                </div>
+                <div class="cmp-card cmp-card--wrong">
+                  <span class="cmp-card__name">X · 텔레그램</span>
+                  <span class="cmp-card__pred cmp-card__pred--up t-mono">↑ 58%</span>
+                  <span class="cmp-card__verdict">오답</span>
+                </div>
+                <div class="cmp-card cmp-card--right">
+                  <span class="cmp-card__name">폴리마켓</span>
+                  <span class="cmp-card__pred cmp-card__pred--down t-mono">↓ 55%</span>
+                  <span class="cmp-card__verdict">✓ 정답</span>
+                </div>
+                <div class="cmp-card cmp-card--right">
+                  <span class="cmp-card__name">관련 기사</span>
+                  <span class="cmp-card__pred cmp-card__pred--down t-mono">↓ 부정</span>
+                  <span class="cmp-card__verdict">✓ 정답</span>
+                </div>
+              </div>
+
+              <div class="compare__footer">
+                정답에 가까웠던 채널은 <strong>예측 고수 픽 / 폴리마켓 / 관련 기사</strong>입니다.<br>
+                다음 BTC 예측 전 이 3개 채널을 우선 참고하세요.
+              </div>
+            </div>
+
+            <div style="flex: 1"></div>
+            <div class="sheet-cta">
+              <div class="cta-row">
+                <button class="cta cta--up"><span class="cta__arrow">↑</span> BTC 매수</button>
+                <button class="cta cta--down"><span class="cta__arrow">↓</span> BTC 매도</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- Notes -->
+  <section class="notes" aria-label="디자인 노트">
+    <h2 class="notes__title">디자인 결정 메모</h2>
+    <ul class="notes__list">
+      <li>한국식 시세 컨벤션: 상승=빨강 / 하락=파랑 (업비트 실제 앱과 동일).</li>
+      <li>가격·% 등 숫자는 JetBrains Mono(tabular-nums)로 정렬, 라벨은 Spoqa Han Sans Neo.</li>
+      <li>다크 테마에서 그림자 대신 밝기 단계(L0~L3)로 카드 위계 표현.</li>
+      <li>카드 내 "stale 표시"는 우하단 아주 작은 점+분 단위. 5분 초과 시 점이 노란색으로 변함.</li>
+      <li>P1 카드(공식·온체인)는 dashed border + opacity 55%로 1차 출시 시 잠금 표시.</li>
+      <li>티어 칩은 그라데이션 금지(anti-slop). 단색 outline + dot 마커로 구분.</li>
+      <li>접근성: ↑/↓ 화살표 + 색상 + 텍스트 % 동시 사용 (적록 색맹 대응). focus-visible 골드 outline.</li>
+      <li>모바일 우선(375x760 디바이스 프레임). 데스크톱에서는 4프레임을 그리드로 나란히.</li>
+    </ul>
+  </section>
+</main>
+
+</body>
+</html>
