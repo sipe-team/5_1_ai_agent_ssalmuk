@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><!-- DESIGN-KO: 프로젝트명 --> — 대시보드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    /* ========================================
+       1. RESET
+       ======================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      hanging-punctuation: first last;
+    }
+    body { min-height: 100dvh; }
+    img, picture, video, canvas, svg { display: block; max-width: 100%; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+    p, h1, h2, h3, h4 { overflow-wrap: break-word; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; background: none; border: none; }
+    ul, ol { list-style: none; }
+
+    /* ========================================
+       2. DESIGN TOKENS
+       ======================================== */
+    :root {
+      --color-primary: oklch(0.55 0.15 250);
+      --color-primary-hover: oklch(0.48 0.17 250);
+      --color-primary-light: oklch(0.92 0.04 250);
+
+      --color-surface-0: oklch(0.98 0.003 250);
+      --color-surface-1: oklch(1 0 0);
+      --color-surface-2: oklch(0.96 0.005 250);
+
+      --color-ink: oklch(0.18 0.02 250);
+      --color-ink-secondary: oklch(0.40 0.02 250);
+      --color-ink-muted: oklch(0.55 0.015 250);
+      --color-border: oklch(0.90 0.006 250);
+
+      --color-success: oklch(0.62 0.17 145);
+      --color-warning: oklch(0.75 0.15 85);
+      --color-error: oklch(0.55 0.22 25);
+
+      --font-sans: 'Pretendard', -apple-system, system-ui, sans-serif;
+
+      --text-section: clamp(1.25rem, 1.5vw + 0.5rem, 1.5rem);
+      --text-headline: 1rem;
+      --text-body: 0.9375rem;
+      --text-caption: 0.8125rem;
+      --text-small: 0.75rem;
+
+      --weight-heading: 700;
+      --weight-semibold: 600;
+      --weight-medium: 500;
+      --weight-body: 400;
+
+      --leading-body: 1.6;
+      --tracking-ko: -0.01em;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      --shadow-sm: 0 1px 3px oklch(0.20 0.02 250 / 0.05);
+      --shadow-md: 0 4px 12px oklch(0.20 0.02 250 / 0.08);
+
+      --duration-fast: 150ms;
+      --easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+      --sidebar-width: 240px;
+      --header-height: 56px;
+    }
+
+    /* ========================================
+       3. BASE
+       ======================================== */
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-body);
+      font-weight: var(--weight-body);
+      line-height: var(--leading-body);
+      letter-spacing: var(--tracking-ko);
+      color: var(--color-ink);
+      background: var(--color-surface-0);
+      word-break: keep-all;
+    }
+
+    /* ========================================
+       4. LAYOUT
+       ======================================== */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      min-height: 100dvh;
+    }
+
+    /* ========================================
+       5. SIDEBAR
+       ======================================== */
+    .sidebar {
+      display: none;
+      width: var(--sidebar-width);
+      background: var(--color-surface-1);
+      border-right: 1px solid var(--color-border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 50;
+      flex-direction: column;
+    }
+    .sidebar__logo {
+      display: flex;
+      align-items: center;
+      height: var(--header-height);
+      padding-inline: var(--space-5);
+      font-size: 1.0625rem;
+      font-weight: var(--weight-heading);
+      letter-spacing: -0.02em;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .sidebar__nav {
+      flex: 1;
+      padding: var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    .sidebar__item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      color: var(--color-ink-secondary);
+      transition: background-color var(--duration-fast) var(--easing),
+                  color var(--duration-fast) var(--easing);
+    }
+    .sidebar__item:hover {
+      background: var(--color-surface-2);
+      color: var(--color-ink);
+    }
+    .sidebar__item--active {
+      background: var(--color-surface-2);
+      color: var(--color-ink);
+    }
+    .sidebar__item svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .sidebar__footer {
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid var(--color-border);
+    }
+    .sidebar__user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .sidebar__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-small);
+      font-weight: var(--weight-semibold);
+      color: var(--color-ink-secondary);
+      flex-shrink: 0;
+    }
+    .sidebar__user-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+    }
+    .sidebar__user-email {
+      font-size: var(--text-small);
+      color: var(--color-ink-muted);
+    }
+
+    /* ========================================
+       6. HEADER
+       ======================================== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--header-height);
+      padding-inline: var(--space-4);
+      background: var(--color-surface-1);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .header__left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .header__menu-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+    }
+    .header__menu-btn:hover { background: var(--color-surface-2); }
+    .header__title {
+      font-size: 1.0625rem;
+      font-weight: var(--weight-semibold);
+    }
+    .header__right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .header__search {
+      width: 240px;
+      height: 36px;
+      padding: 0 var(--space-3);
+      background: var(--color-surface-0);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: var(--text-caption);
+    }
+    .header__search:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+    .header__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      background: var(--color-primary);
+      color: white;
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      border-radius: var(--radius-md);
+      min-height: 36px;
+    }
+    .header__btn:hover { background: var(--color-primary-hover); }
+    .header__btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ========================================
+       7. MAIN CONTENT
+       ======================================== */
+    .main {
+      padding: var(--space-6) var(--space-4);
+      overflow-y: auto;
+    }
+
+    /* ── 메트릭 카드 ── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    .metric-card {
+      padding: var(--space-5);
+      background: var(--color-surface-1);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+    .metric-card__label {
+      font-size: var(--text-small);
+      font-weight: var(--weight-semibold);
+      color: var(--color-ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .metric-card__value {
+      font-size: 1.75rem;
+      font-weight: var(--weight-heading);
+      font-variant-numeric: tabular-nums;
+      margin-top: var(--space-2);
+      line-height: 1;
+    }
+    .metric-card__change {
+      font-size: var(--text-small);
+      font-variant-numeric: tabular-nums;
+      margin-top: var(--space-1);
+    }
+    .metric-card__change--up { color: var(--color-success); }
+    .metric-card__change--down { color: var(--color-error); }
+
+    /* ── 콘텐츠 그리드 ── */
+    .content-grid {
+      display: grid;
+      gap: var(--space-6);
+      grid-template-columns: 1fr;
+    }
+
+    /* ── 패널 ── */
+    .panel {
+      background: var(--color-surface-1);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+    .panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-5) var(--space-5) var(--space-3);
+    }
+    .panel__title {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+    }
+    .panel__action {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-medium);
+      color: var(--color-primary);
+    }
+    .panel__action:hover { text-decoration: underline; }
+
+    /* ── 테이블 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+    .data-table th {
+      text-align: left;
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-small);
+      font-weight: var(--weight-semibold);
+      color: var(--color-ink-muted);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .data-table td {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-body);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table td:last-child,
+    .data-table th:last-child { text-align: right; }
+
+    /* ── 배지 ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px var(--space-2);
+      font-size: var(--text-small);
+      font-weight: var(--weight-medium);
+      border-radius: var(--radius-sm);
+    }
+    .badge--success { background: oklch(0.92 0.06 145); color: oklch(0.35 0.12 145); }
+    .badge--warning { background: oklch(0.92 0.06 85); color: oklch(0.40 0.12 85); }
+    .badge--error   { background: oklch(0.92 0.06 25); color: oklch(0.40 0.15 25); }
+    .badge--neutral { background: var(--color-surface-2); color: var(--color-ink-secondary); }
+
+    /* ── 활동 리스트 ── */
+    .activity-list {
+      padding: 0 var(--space-5) var(--space-5);
+      display: flex;
+      flex-direction: column;
+    }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding-block: var(--space-3);
+    }
+    .activity-item + .activity-item {
+      border-top: 1px solid var(--color-border);
+    }
+    .activity-item__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-small);
+      font-weight: var(--weight-semibold);
+      color: var(--color-ink-secondary);
+      flex-shrink: 0;
+    }
+    .activity-item__content {
+      flex: 1;
+      min-width: 0;
+    }
+    .activity-item__text {
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .activity-item__time {
+      font-size: var(--text-small);
+      color: var(--color-ink-muted);
+    }
+
+    /* ========================================
+       8. RESPONSIVE
+       ======================================== */
+    @media (min-width: 768px) {
+      .main { padding: var(--space-6); }
+      .header__search { display: block; }
+    }
+
+    @media (min-width: 1024px) {
+      .layout {
+        grid-template-columns: var(--sidebar-width) 1fr;
+      }
+      .sidebar {
+        display: flex;
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+      }
+      .header__menu-btn { display: none; }
+      .content-grid {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .header__search { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="layout">
+
+    <!-- ===== 사이드바 ===== -->
+    <aside class="sidebar">
+      <div class="sidebar__logo"><!-- DESIGN-KO: 프로젝트명 --></div>
+      <nav class="sidebar__nav">
+        <!-- DESIGN-KO: 메뉴 항목 정의. 아이콘은 인라인 SVG -->
+        <a href="#" class="sidebar__item sidebar__item--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          대시보드
+        </a>
+        <a href="#" class="sidebar__item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <!-- DESIGN-KO: 메뉴 -->
+        </a>
+        <a href="#" class="sidebar__item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m-7.07-3.93 4.24-4.24m5.66-5.66 4.24-4.24M1 12h6m6 0h6m-3.93 7.07-4.24-4.24m-5.66-5.66L3.93 4.93"/></svg>
+          <!-- DESIGN-KO: 메뉴 -->
+        </a>
+      </nav>
+      <div class="sidebar__footer">
+        <div class="sidebar__user">
+          <div class="sidebar__avatar"><!-- DESIGN-KO: 이니셜 --></div>
+          <div>
+            <div class="sidebar__user-name"><!-- DESIGN-KO: 이름 --></div>
+            <div class="sidebar__user-email"><!-- DESIGN-KO: 이메일 --></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== 메인 영역 ===== -->
+    <div>
+      <!-- 헤더 -->
+      <header class="header">
+        <div class="header__left">
+          <button class="header__menu-btn" aria-label="사이드바 열기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <h1 class="header__title"><!-- DESIGN-KO: 페이지 제목 --></h1>
+        </div>
+        <div class="header__right">
+          <input type="search" class="header__search" placeholder="검색..." aria-label="검색" />
+          <button class="header__btn"><!-- DESIGN-KO: 주 액션 --></button>
+        </div>
+      </header>
+
+      <!-- 콘텐츠 -->
+      <main class="main">
+        <!-- 메트릭 카드 -->
+        <div class="metrics">
+          <!-- DESIGN-KO: 메트릭 카드 3-5개 반복 -->
+          <div class="metric-card">
+            <p class="metric-card__label"><!-- DESIGN-KO: 지표명 --></p>
+            <p class="metric-card__value"><!-- DESIGN-KO: 수치 --></p>
+            <p class="metric-card__change metric-card__change--up"><!-- DESIGN-KO: 변화 --></p>
+          </div>
+        </div>
+
+        <!-- 콘텐츠 그리드 -->
+        <div class="content-grid">
+          <!-- 테이블 패널 -->
+          <div class="panel">
+            <div class="panel__header">
+              <h2 class="panel__title"><!-- DESIGN-KO: 테이블 제목 --></h2>
+              <a href="#" class="panel__action">전체 보기</a>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th><!-- DESIGN-KO: 컬럼 1 --></th>
+                  <th><!-- DESIGN-KO: 컬럼 2 --></th>
+                  <th><!-- DESIGN-KO: 컬럼 3 --></th>
+                  <th><!-- DESIGN-KO: 컬럼 4 --></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- DESIGN-KO: 데이터 행 반복 -->
+                <tr>
+                  <td><!-- 데이터 --></td>
+                  <td><!-- 데이터 --></td>
+                  <td><span class="badge badge--success"><!-- 상태 --></span></td>
+                  <td><!-- 수치 --></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 사이드 패널 -->
+          <div class="panel">
+            <div class="panel__header">
+              <h2 class="panel__title"><!-- DESIGN-KO: 사이드 패널 제목 --></h2>
+            </div>
+            <div class="activity-list">
+              <!-- DESIGN-KO: 활동 항목 반복 -->
+              <div class="activity-item">
+                <div class="activity-item__avatar"><!-- 이니셜 --></div>
+                <div class="activity-item__content">
+                  <p class="activity-item__text"><!-- 항목 --></p>
+                  <p class="activity-item__time"><!-- 시간 --></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+  </div>
+
+</body>
+</html>

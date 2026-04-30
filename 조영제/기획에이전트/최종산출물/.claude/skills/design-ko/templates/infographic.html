@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><!-- DESIGN-KO: 인포그래픽 제목 --></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --color-primary: oklch(0.55 0.15 250);
+      --color-primary-light: oklch(0.92 0.04 250);
+      --color-surface-1: oklch(0.99 0.003 250);
+      --color-surface-2: oklch(0.96 0.005 250);
+      --color-ink: oklch(0.18 0.02 250);
+      --color-ink-secondary: oklch(0.38 0.02 250);
+      --color-ink-muted: oklch(0.55 0.015 250);
+      --color-border: oklch(0.88 0.008 250);
+      --color-success: oklch(0.62 0.17 145);
+      --color-warning: oklch(0.75 0.15 85);
+      --color-error: oklch(0.55 0.22 25);
+      --font-sans: 'Pretendard', -apple-system, system-ui, sans-serif;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.75;
+      letter-spacing: -0.01em;
+      color: var(--color-ink);
+      background: var(--color-surface-1);
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    /* ===== 레이아웃 ===== */
+    .infographic {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .section {
+      margin-bottom: 64px;
+    }
+
+    /* ===== 헤더 ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 64px;
+      padding-bottom: 40px;
+      border-bottom: 2px solid var(--color-border);
+    }
+    .header__eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-primary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .header__title {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .header__subtitle {
+      font-size: 1.0625rem;
+      color: var(--color-ink-secondary);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ===== 핵심 수치 ===== */
+    .key-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .key-metric {
+      text-align: center;
+      padding: 28px 20px;
+      background: var(--color-surface-2);
+      border-radius: var(--radius-lg);
+    }
+    .key-metric__value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--color-primary);
+      font-variant-numeric: tabular-nums;
+    }
+    .key-metric__label {
+      font-size: 14px;
+      color: var(--color-ink-secondary);
+      margin-top: 8px;
+    }
+
+    /* ===== 섹션 제목 ===== */
+    .section__title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .section__subtitle {
+      font-size: 0.9375rem;
+      color: var(--color-ink-secondary);
+      margin-bottom: 24px;
+      max-width: 40em;
+    }
+
+    /* ===== CSS 바 차트 ===== */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .bar-chart__item {
+      display: grid;
+      grid-template-columns: 120px 1fr 60px;
+      gap: 12px;
+      align-items: center;
+    }
+    .bar-chart__label {
+      font-size: 14px;
+      font-weight: 500;
+      text-align: right;
+    }
+    .bar-chart__track {
+      height: 28px;
+      background: var(--color-surface-2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bar-chart__fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 6px;
+      transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bar-chart__value {
+      font-size: 14px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    /* ===== CSS 도넛 차트 ===== */
+    .donut-chart {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .donut-chart__svg {
+      width: 200px;
+      height: 200px;
+      transform: rotate(-90deg);
+    }
+    .donut-chart__circle {
+      fill: none;
+      stroke-width: 24;
+      stroke-linecap: round;
+    }
+    .donut-chart__legend {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .donut-chart__legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .donut-chart__legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* ===== 비교 테이블 ===== */
+    .comparison {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+    .comparison th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-ink-muted);
+      border-bottom: 2px solid var(--color-border);
+    }
+    .comparison td {
+      padding: 14px 16px;
+      font-size: 15px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .comparison tr:last-child td { border-bottom: none; }
+
+    /* ===== 인용/강조 ===== */
+    .callout {
+      padding: 24px 28px;
+      background: var(--color-primary-light);
+      border-radius: var(--radius-lg);
+      border-left: 4px solid var(--color-primary);
+      margin: 32px 0;
+    }
+    .callout__text {
+      font-size: 1.0625rem;
+      font-weight: 500;
+      line-height: 1.7;
+    }
+    .callout__source {
+      font-size: 13px;
+      color: var(--color-ink-muted);
+      margin-top: 8px;
+    }
+
+    /* ===== 출처 ===== */
+    .sources {
+      padding-top: 32px;
+      border-top: 1px solid var(--color-border);
+      font-size: 13px;
+      color: var(--color-ink-muted);
+    }
+    .sources__title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--color-ink-secondary);
+    }
+    .sources ol {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* ===== 반응형 ===== */
+    @media (max-width: 640px) {
+      .bar-chart__item { grid-template-columns: 80px 1fr 50px; }
+      .donut-chart { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <article class="infographic">
+
+    <!-- ===== 헤더 ===== -->
+    <header class="header">
+      <p class="header__eyebrow"><!-- DESIGN-KO: 카테고리 / 날짜 --></p>
+      <h1 class="header__title"><!-- DESIGN-KO: 인포그래픽 제목 --></h1>
+      <p class="header__subtitle"><!-- DESIGN-KO: 부제/설명 --></p>
+    </header>
+
+    <!-- ===== 핵심 수치 ===== -->
+    <section class="section">
+      <div class="key-metrics">
+        <div class="key-metric">
+          <p class="key-metric__value"><!-- DESIGN-KO: 수치 --></p>
+          <p class="key-metric__label"><!-- DESIGN-KO: 라벨 --></p>
+        </div>
+        <!-- DESIGN-KO: 핵심 수치 반복 (2-4개) -->
+      </div>
+    </section>
+
+    <!-- ===== 바 차트 섹션 ===== -->
+    <section class="section">
+      <h2 class="section__title"><!-- DESIGN-KO: 차트 제목 --></h2>
+      <p class="section__subtitle"><!-- DESIGN-KO: 차트 설명 --></p>
+      <div class="bar-chart">
+        <div class="bar-chart__item">
+          <span class="bar-chart__label"><!-- DESIGN-KO: 항목 --></span>
+          <div class="bar-chart__track">
+            <div class="bar-chart__fill" style="width: 85%;"></div>
+          </div>
+          <span class="bar-chart__value">85%</span>
+        </div>
+        <!-- DESIGN-KO: 바 차트 항목 반복 -->
+      </div>
+    </section>
+
+    <!-- ===== 콜아웃 ===== -->
+    <div class="callout">
+      <p class="callout__text"><!-- DESIGN-KO: 핵심 인사이트 또는 인용 --></p>
+      <p class="callout__source"><!-- DESIGN-KO: 출처 --></p>
+    </div>
+
+    <!-- ===== 비교 테이블 ===== -->
+    <section class="section">
+      <h2 class="section__title"><!-- DESIGN-KO: 비교 제목 --></h2>
+      <table class="comparison">
+        <thead>
+          <tr>
+            <th><!-- DESIGN-KO: 컬럼 1 --></th>
+            <th><!-- DESIGN-KO: 컬럼 2 --></th>
+            <th><!-- DESIGN-KO: 컬럼 3 --></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- DESIGN-KO: 데이터 행 -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== 출처 ===== -->
+    <footer class="sources">
+      <p class="sources__title">데이터 출처</p>
+      <ol>
+        <li><!-- DESIGN-KO: 출처 1 --></li>
+        <!-- DESIGN-KO: 출처 반복 -->
+      </ol>
+    </footer>
+
+  </article>
+
+</body>
+</html>

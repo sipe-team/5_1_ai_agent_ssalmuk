@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><!-- DESIGN-KO: 앱 이름 --> — 프로토타입</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    /* ========================================
+       1. RESET
+       ======================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    body { min-height: 100dvh; }
+    img, picture, svg { display: block; max-width: 100%; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+    p, h1, h2, h3 { overflow-wrap: break-word; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; background: none; border: none; }
+    ul, ol { list-style: none; }
+
+    /* ========================================
+       2. DESIGN TOKENS
+       ======================================== */
+    :root {
+      --color-primary: oklch(0.55 0.15 250);
+      --color-primary-hover: oklch(0.48 0.17 250);
+      --color-primary-light: oklch(0.92 0.04 250);
+
+      --color-surface-0: oklch(0.99 0.003 250);
+      --color-surface-1: oklch(0.96 0.005 250);
+      --color-surface-2: oklch(0.92 0.008 250);
+
+      --color-ink: oklch(0.18 0.02 250);
+      --color-ink-secondary: oklch(0.40 0.02 250);
+      --color-ink-muted: oklch(0.55 0.015 250);
+      --color-border: oklch(0.90 0.006 250);
+
+      --color-success: oklch(0.62 0.17 145);
+      --color-error: oklch(0.55 0.22 25);
+
+      --font-sans: 'Pretendard', -apple-system, system-ui, sans-serif;
+
+      --text-lg: 1.0625rem;
+      --text-body: 0.9375rem;
+      --text-caption: 0.8125rem;
+      --text-small: 0.6875rem;
+
+      --weight-heading: 700;
+      --weight-semibold: 600;
+      --weight-medium: 500;
+      --weight-body: 400;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+
+      --duration-fast: 150ms;
+      --easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+      /* 디바이스 크기 */
+      --device-width: 390px;
+      --device-height: 844px;
+      --statusbar-height: 54px;
+      --navbar-height: 44px;
+      --tabbar-height: 83px;
+      --safe-area-top: 59px;
+      --safe-area-bottom: 34px;
+    }
+
+    /* ========================================
+       3. BASE
+       ======================================== */
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-body);
+      font-weight: var(--weight-body);
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+      color: var(--color-ink);
+      background: oklch(0.94 0.005 250);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-8);
+      word-break: keep-all;
+    }
+
+    /* ========================================
+       4. DEVICE FRAME
+       ======================================== */
+    .device {
+      width: var(--device-width);
+      height: var(--device-height);
+      background: var(--color-surface-0);
+      border-radius: 44px;
+      border: 6px solid oklch(0.15 0.01 250);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 60px oklch(0.15 0.02 250 / 0.25);
+    }
+    .device__island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: oklch(0.15 0.01 250);
+      border-radius: 18px;
+      z-index: 10;
+    }
+
+    /* ========================================
+       5. APP CHROME
+       ======================================== */
+
+    /* ── 상태바 ── */
+    .statusbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: var(--statusbar-height);
+      padding: 0 28px;
+      padding-top: 16px;
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── 네비게이션바 ── */
+    .app-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--navbar-height);
+      padding-inline: var(--space-5);
+      position: relative;
+    }
+    .app-navbar__title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--text-lg);
+      font-weight: var(--weight-semibold);
+    }
+    .app-navbar__back {
+      font-size: var(--text-lg);
+      color: var(--color-primary);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .app-navbar__action {
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* ── 탭바 ── */
+    .tabbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--tabbar-height);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: var(--space-2);
+      padding-bottom: var(--safe-area-bottom);
+      background: var(--color-surface-0);
+      border-top: 1px solid var(--color-border);
+    }
+    .tabbar__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 44px;
+      min-height: 44px;
+      justify-content: center;
+      font-size: var(--text-small);
+      color: var(--color-ink-muted);
+    }
+    .tabbar__item--active {
+      color: var(--color-primary);
+    }
+    .tabbar__icon {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-sm);
+    }
+    .tabbar__item--active .tabbar__icon {
+      background: var(--color-primary);
+      opacity: 0.8;
+    }
+    .tabbar__item:not(.tabbar__item--active) .tabbar__icon {
+      background: var(--color-ink-muted);
+      opacity: 0.3;
+    }
+
+    /* ========================================
+       6. APP CONTENT
+       ======================================== */
+    .app-content {
+      height: calc(var(--device-height) - var(--statusbar-height) - var(--navbar-height) - var(--tabbar-height) - 12px);
+      overflow-y: auto;
+      padding: 0 var(--space-5);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .app-section-title {
+      font-size: 1.25rem;
+      font-weight: var(--weight-heading);
+      letter-spacing: -0.02em;
+      margin-top: var(--space-5);
+      margin-bottom: var(--space-3);
+    }
+
+    /* ── 카드 ── */
+    .app-card {
+      background: var(--color-surface-1);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+    .app-card__title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-1);
+    }
+    .app-card__text {
+      font-size: var(--text-caption);
+      color: var(--color-ink-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── 리스트 아이템 ── */
+    .app-list-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding-block: 14px;
+    }
+    .app-list-item + .app-list-item {
+      border-top: 1px solid var(--color-border);
+    }
+    .app-list-item__avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-surface-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-ink-secondary);
+      flex-shrink: 0;
+    }
+    .app-list-item__content {
+      flex: 1;
+      min-width: 0;
+    }
+    .app-list-item__title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .app-list-item__subtitle {
+      font-size: var(--text-caption);
+      color: var(--color-ink-muted);
+      margin-top: 2px;
+    }
+    .app-list-item__trailing {
+      flex-shrink: 0;
+    }
+
+    /* ── 앱 버튼 ── */
+    .app-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 50px;
+      background: var(--color-primary);
+      color: white;
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      border-radius: var(--radius-lg);
+      margin-top: var(--space-5);
+    }
+    .app-btn:active {
+      background: var(--color-primary-hover);
+    }
+
+    /* ── 배지 ── */
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px var(--space-2);
+      font-size: var(--text-small);
+      font-weight: var(--weight-medium);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface-1);
+      color: var(--color-ink-secondary);
+    }
+
+    /* ========================================
+       7. MULTI-SCREEN (탭 전환)
+       ======================================== */
+    .screen { display: none; }
+    .screen--active { display: block; }
+
+    /* ========================================
+       8. RESPONSIVE (디바이스 프레임 축소)
+       ======================================== */
+    @media (max-height: 900px) {
+      body { padding: var(--space-4); }
+      .device {
+        transform: scale(0.85);
+        transform-origin: center center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="device">
+    <div class="device__island"></div>
+
+    <!-- ===== 상태바 ===== -->
+    <div class="statusbar">
+      <span>9:41</span>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+          <rect x="0" y="7" width="3" height="5" rx="0.5"/>
+          <rect x="4.5" y="5" width="3" height="7" rx="0.5"/>
+          <rect x="9" y="2" width="3" height="10" rx="0.5"/>
+          <rect x="13.5" y="0" width="2.5" height="12" rx="0.5" opacity="0.3"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="19" height="10" rx="2"/>
+          <rect x="21" y="7" width="2" height="4" rx="0.5" fill="currentColor"/>
+          <rect x="3" y="6" width="12" height="6" rx="1" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ===== 네비게이션바 ===== -->
+    <nav class="app-navbar">
+      <!-- DESIGN-KO: showBack=false 이면 빈 div -->
+      <div style="width: 24px;"></div>
+      <span class="app-navbar__title"><!-- DESIGN-KO: 화면 제목 --></span>
+      <div class="app-navbar__action">
+        <!-- DESIGN-KO: 액션 버튼 (알림, 설정 등) -->
+      </div>
+    </nav>
+
+    <!-- ===== 앱 콘텐츠 ===== -->
+    <div class="app-content">
+
+      <h1 class="app-section-title"><!-- DESIGN-KO: 섹션 제목 --></h1>
+
+      <!-- DESIGN-KO: 카드 -->
+      <div class="app-card">
+        <h3 class="app-card__title"><!-- DESIGN-KO: 카드 제목 --></h3>
+        <p class="app-card__text"><!-- DESIGN-KO: 설명 --></p>
+      </div>
+
+      <!-- DESIGN-KO: 리스트 -->
+      <div>
+        <div class="app-list-item">
+          <div class="app-list-item__avatar"><!-- 이니셜 --></div>
+          <div class="app-list-item__content">
+            <p class="app-list-item__title"><!-- DESIGN-KO: 항목 --></p>
+            <p class="app-list-item__subtitle"><!-- DESIGN-KO: 부제 --></p>
+          </div>
+          <div class="app-list-item__trailing">
+            <span class="app-badge"><!-- 상태 --></span>
+          </div>
+        </div>
+        <!-- DESIGN-KO: 리스트 항목 반복 -->
+      </div>
+
+      <button class="app-btn"><!-- DESIGN-KO: 주 액션 --></button>
+
+    </div>
+
+    <!-- ===== 탭바 ===== -->
+    <nav class="tabbar">
+      <!-- DESIGN-KO: 탭 정의 (3-5개) -->
+      <button class="tabbar__item tabbar__item--active" data-tab="home">
+        <div class="tabbar__icon"></div>
+        <span>홈</span>
+      </button>
+      <button class="tabbar__item" data-tab="explore">
+        <div class="tabbar__icon"></div>
+        <span>탐색</span>
+      </button>
+      <button class="tabbar__item" data-tab="alerts">
+        <div class="tabbar__icon"></div>
+        <span>알림</span>
+      </button>
+      <button class="tabbar__item" data-tab="settings">
+        <div class="tabbar__icon"></div>
+        <span>설정</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    // 멀티 스크린 탭 전환 (필요 시 활성화)
+    document.querySelectorAll('[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // 탭 활성 상태 전환
+        document.querySelectorAll('[data-tab]').forEach(b => {
+          b.classList.toggle('tabbar__item--active', b === btn);
+        });
+        // 스크린 전환 (data-screen 속성이 있는 경우)
+        const target = btn.dataset.tab;
+        document.querySelectorAll('[data-screen]').forEach(s => {
+          s.classList.toggle('screen--active', s.dataset.screen === target);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

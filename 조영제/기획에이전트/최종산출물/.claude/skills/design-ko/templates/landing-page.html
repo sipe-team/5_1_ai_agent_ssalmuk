@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><!-- DESIGN-KO: 프로젝트명 --></title>
+  <!-- DESIGN-KO: 폰트 CDN (typography-ko.md 페어링에 따라 교체) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    /* ========================================
+       1. RESET
+       ======================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+      hanging-punctuation: first last;
+    }
+    body { min-height: 100dvh; }
+    img, picture, video, canvas, svg { display: block; max-width: 100%; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+    p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; background: none; border: none; }
+    ul, ol { list-style: none; }
+
+    /* ========================================
+       2. DESIGN TOKENS
+       ======================================== */
+    :root {
+      /* DESIGN-KO: color-system.md 참조하여 교체 */
+      --color-primary: oklch(0.55 0.15 250);
+      --color-primary-hover: oklch(0.48 0.17 250);
+      --color-primary-light: oklch(0.92 0.04 250);
+
+      --color-surface-0: oklch(0.99 0.003 250);
+      --color-surface-1: oklch(0.96 0.005 250);
+      --color-ink: oklch(0.18 0.02 250);
+      --color-ink-secondary: oklch(0.40 0.02 250);
+      --color-ink-muted: oklch(0.55 0.015 250);
+      --color-border: oklch(0.88 0.008 250);
+
+      --font-sans: 'Pretendard', -apple-system, system-ui, sans-serif;
+      --font-heading: var(--font-sans);
+
+      --text-hero: clamp(2rem, 5vw + 1rem, 4rem);
+      --text-section: clamp(1.5rem, 3vw + 0.5rem, 2.5rem);
+      --text-headline: clamp(1.25rem, 2vw + 0.5rem, 1.75rem);
+      --text-body: clamp(1rem, 0.5vw + 0.875rem, 1.0625rem);
+      --text-caption: clamp(0.8125rem, 0.3vw + 0.75rem, 0.875rem);
+
+      --weight-heading: 700;
+      --weight-body: 400;
+      --weight-semibold: 600;
+
+      --leading-body: 1.75;
+      --leading-heading: 1.2;
+      --tracking-ko: -0.01em;
+      --tracking-heading: -0.025em;
+
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      --shadow-sm: 0 1px 3px oklch(0.20 0.02 250 / 0.06);
+      --shadow-md: 0 4px 16px oklch(0.20 0.02 250 / 0.08);
+
+      --duration-fast: 150ms;
+      --duration-normal: 250ms;
+      --easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+      --max-width: 1200px;
+      --max-width-prose: 40em;
+    }
+
+    /* ========================================
+       3. BASE
+       ======================================== */
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-body);
+      font-weight: var(--weight-body);
+      line-height: var(--leading-body);
+      letter-spacing: var(--tracking-ko);
+      color: var(--color-ink);
+      background: var(--color-surface-0);
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    /* ========================================
+       4. LAYOUT
+       ======================================== */
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin-inline: auto;
+      padding-inline: var(--space-4);
+    }
+
+    /* ========================================
+       5. COMPONENTS
+       ======================================== */
+
+    /* ── 버튼 ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      line-height: 1;
+      border-radius: var(--radius-md);
+      transition: background-color var(--duration-fast) var(--easing),
+                  box-shadow var(--duration-fast) var(--easing);
+      min-height: 48px;
+    }
+    .btn--primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn--primary:hover {
+      background: var(--color-primary-hover);
+    }
+    .btn--outline {
+      background: transparent;
+      color: var(--color-ink);
+      box-shadow: inset 0 0 0 1px var(--color-border);
+    }
+    .btn--outline:hover {
+      background: var(--color-surface-1);
+    }
+    .btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ── 배지 ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-1, 4px) var(--space-3);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      border-radius: var(--radius-sm);
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    /* ========================================
+       6. SECTIONS
+       ======================================== */
+
+    /* ── 네비게이션 ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: oklch(from var(--color-surface-0) l c h / 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .nav__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav__logo {
+      font-size: 1.125rem;
+      font-weight: var(--weight-heading);
+      letter-spacing: var(--tracking-heading);
+    }
+    .nav__links {
+      display: none;
+      align-items: center;
+      gap: var(--space-6);
+      font-size: var(--text-caption);
+      color: var(--color-ink-secondary);
+    }
+    .nav__links a:hover { color: var(--color-ink); }
+    .nav__menu-btn {
+      display: flex;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── 히어로 ── */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      padding-block: var(--space-16);
+    }
+    .hero__content {
+      max-width: 720px;
+    }
+    .hero__title {
+      font-family: var(--font-heading);
+      font-size: var(--text-hero);
+      font-weight: var(--weight-heading);
+      line-height: var(--leading-heading);
+      letter-spacing: var(--tracking-heading);
+      margin-top: var(--space-4);
+    }
+    .hero__subtitle {
+      font-size: clamp(1.0625rem, 0.8vw + 0.875rem, 1.25rem);
+      color: var(--color-ink-secondary);
+      line-height: var(--leading-body);
+      max-width: var(--max-width-prose);
+      margin-top: var(--space-6);
+    }
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+    }
+
+    /* ── 문제/해결 ── */
+    .problem {
+      padding-block: var(--space-20);
+      background: var(--color-surface-1);
+    }
+    .problem__title {
+      font-family: var(--font-heading);
+      font-size: var(--text-section);
+      font-weight: var(--weight-heading);
+      line-height: var(--leading-heading);
+      letter-spacing: var(--tracking-heading);
+    }
+    .problem__text {
+      color: var(--color-ink-secondary);
+      font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+      max-width: var(--max-width-prose);
+      margin-top: var(--space-4);
+    }
+
+    /* ── 기능/특징 ── */
+    /*
+     * DESIGN-KO: 동일 3-column 금지.
+     * 아래는 비대칭 레이아웃 (큰 영역 + 작은 영역 2개 스택).
+     * 콘텐츠에 맞게 grid-template을 변경한다.
+     */
+    .features {
+      padding-block: var(--space-20);
+    }
+    .features__header {
+      margin-bottom: var(--space-12);
+    }
+    .features__title {
+      font-family: var(--font-heading);
+      font-size: var(--text-section);
+      font-weight: var(--weight-heading);
+      line-height: var(--leading-heading);
+      letter-spacing: var(--tracking-heading);
+    }
+    .features__subtitle {
+      color: var(--color-ink-secondary);
+      max-width: var(--max-width-prose);
+      margin-top: var(--space-3);
+    }
+    .features__grid {
+      display: grid;
+      gap: var(--space-6);
+      grid-template-columns: 1fr;
+    }
+    .feature-card {
+      padding: var(--space-8);
+      background: var(--color-surface-1);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transition: box-shadow var(--duration-fast) var(--easing);
+    }
+    .feature-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .feature-card__title {
+      font-size: var(--text-headline);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-3);
+    }
+    .feature-card__text {
+      color: var(--color-ink-secondary);
+      line-height: var(--leading-body);
+    }
+    .feature-card__visual {
+      margin-top: var(--space-6);
+      aspect-ratio: 16 / 9;
+      background: var(--color-surface-0);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-caption);
+      color: var(--color-ink-muted);
+    }
+
+    /* ── 사회적 증거 ── */
+    /* DESIGN-KO: 실제 데이터가 있을 때만 포함. 가짜 로고/후기 금지. */
+    .proof {
+      padding-block: var(--space-20);
+      background: var(--color-surface-1);
+      text-align: center;
+    }
+    .proof__label {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-ink-muted);
+      margin-bottom: var(--space-8);
+    }
+    .proof__quote {
+      max-width: 600px;
+      margin-inline: auto;
+      font-size: var(--text-headline);
+      font-weight: 500;
+      line-height: 1.5;
+      font-style: italic;
+    }
+    .proof__attribution {
+      margin-top: var(--space-4);
+      font-size: var(--text-caption);
+      color: var(--color-ink-muted);
+    }
+
+    /* ── CTA 반복 ── */
+    .cta {
+      padding-block: var(--space-20);
+      text-align: center;
+    }
+    .cta__title {
+      font-family: var(--font-heading);
+      font-size: var(--text-section);
+      font-weight: var(--weight-heading);
+      line-height: var(--leading-heading);
+      letter-spacing: var(--tracking-heading);
+    }
+    .cta__text {
+      color: var(--color-ink-secondary);
+      max-width: 480px;
+      margin: var(--space-4) auto var(--space-8);
+    }
+
+    /* ── 풋터 ── */
+    .footer {
+      border-top: 1px solid var(--color-border);
+      padding-block: var(--space-8);
+    }
+    .footer__inner {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      font-size: var(--text-caption);
+      color: var(--color-ink-muted);
+    }
+    .footer__links {
+      display: flex;
+      gap: var(--space-6);
+    }
+    .footer__links a:hover { color: var(--color-ink); }
+
+    /* ========================================
+       7. RESPONSIVE
+       ======================================== */
+    @media (min-width: 768px) {
+      .container { padding-inline: var(--space-8); }
+      .nav__links { display: flex; }
+      .nav__menu-btn { display: none; }
+      .features__grid {
+        grid-template-columns: 3fr 2fr;
+        grid-template-rows: auto auto;
+      }
+      .features__grid > :first-child {
+        grid-row: 1 / 3;
+      }
+      .footer__inner {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    /* ========================================
+       8. MOBILE MENU
+       ======================================== */
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--color-surface-0);
+      padding: var(--space-8) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      font-size: 1.25rem;
+    }
+    .mobile-menu[hidden] { display: none; }
+    .mobile-menu__close {
+      align-self: flex-end;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 네비게이션 ===== -->
+  <header class="nav">
+    <div class="container nav__inner">
+      <a href="/" class="nav__logo"><!-- DESIGN-KO: 프로젝트명 --></a>
+      <nav class="nav__links">
+        <a href="#features">기능</a>
+        <a href="#proof">고객</a>
+        <!-- DESIGN-KO: 추가 링크 -->
+        <a href="#cta" class="btn btn--primary" style="padding: 8px 20px; min-height: 40px; font-size: var(--text-caption);">
+          <!-- DESIGN-KO: CTA -->
+        </a>
+      </nav>
+      <button class="nav__menu-btn" data-menu-toggle aria-label="메뉴 열기" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- 모바일 메뉴 -->
+  <nav class="mobile-menu" data-menu hidden>
+    <button class="mobile-menu__close" data-menu-toggle aria-label="메뉴 닫기">&times;</button>
+    <a href="#features">기능</a>
+    <a href="#proof">고객</a>
+    <!-- DESIGN-KO: 추가 링크 -->
+  </nav>
+
+  <main>
+    <!-- ===== 히어로 ===== -->
+    <section class="hero">
+      <div class="container hero__content">
+        <div class="badge"><!-- DESIGN-KO: 아이브로우 (예: "새로운 기능 출시") --></div>
+        <h1 class="hero__title">
+          <!-- DESIGN-KO: 핵심 가치 한 문장 -->
+        </h1>
+        <p class="hero__subtitle">
+          <!-- DESIGN-KO: 2-3문장 설명 -->
+        </p>
+        <div class="hero__actions">
+          <a href="#cta" class="btn btn--primary"><!-- DESIGN-KO: 주 CTA --></a>
+          <a href="#features" class="btn btn--outline"><!-- DESIGN-KO: 보조 CTA --></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 문제 → 해결 ===== -->
+    <section class="problem">
+      <div class="container">
+        <h2 class="problem__title"><!-- DESIGN-KO: 문제/해결 제목 --></h2>
+        <p class="problem__text"><!-- DESIGN-KO: 사용자 문제 정의 → 해결책 --></p>
+      </div>
+    </section>
+
+    <!-- ===== 기능/특징 ===== -->
+    <section id="features" class="features">
+      <div class="container">
+        <div class="features__header">
+          <h2 class="features__title"><!-- DESIGN-KO: 기능 섹션 제목 --></h2>
+          <p class="features__subtitle"><!-- DESIGN-KO: 기능 섹션 설명 --></p>
+        </div>
+
+        <!-- DESIGN-KO: 비대칭 그리드. 콘텐츠에 맞게 변경 -->
+        <div class="features__grid">
+          <article class="feature-card">
+            <h3 class="feature-card__title"><!-- DESIGN-KO: 핵심 기능 --></h3>
+            <p class="feature-card__text"><!-- DESIGN-KO: 설명 --></p>
+            <div class="feature-card__visual">스크린샷 플레이스홀더</div>
+          </article>
+
+          <article class="feature-card">
+            <h3 class="feature-card__title"><!-- DESIGN-KO: 기능 2 --></h3>
+            <p class="feature-card__text"><!-- DESIGN-KO: 설명 --></p>
+          </article>
+
+          <article class="feature-card">
+            <h3 class="feature-card__title"><!-- DESIGN-KO: 기능 3 --></h3>
+            <p class="feature-card__text"><!-- DESIGN-KO: 설명 --></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 사회적 증거 ===== -->
+    <!-- DESIGN-KO: 실제 데이터가 없으면 이 섹션 전체 제거 -->
+    <section id="proof" class="proof">
+      <div class="container">
+        <p class="proof__label"><!-- DESIGN-KO: "N개 팀이 사용 중" 등 (실제 수치만) --></p>
+        <blockquote class="proof__quote">
+          <!-- DESIGN-KO: 실제 사용자 후기 -->
+        </blockquote>
+        <p class="proof__attribution"><!-- DESIGN-KO: 이름, 직함, 회사 --></p>
+      </div>
+    </section>
+
+    <!-- ===== CTA 반복 ===== -->
+    <section id="cta" class="cta">
+      <div class="container">
+        <h2 class="cta__title"><!-- DESIGN-KO: 행동 유도 제목 --></h2>
+        <p class="cta__text"><!-- DESIGN-KO: 마지막 설득 --></p>
+        <a href="#" class="btn btn--primary"><!-- DESIGN-KO: 주 CTA 반복 --></a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== 풋터 ===== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p>&copy; 2026 <!-- DESIGN-KO: 회사명 -->. All rights reserved.</p>
+      <nav class="footer__links">
+        <a href="#">이용약관</a>
+        <a href="#">개인정보처리방침</a>
+        <a href="#">문의</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // 모바일 메뉴 토글
+    document.querySelectorAll('[data-menu-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const menu = document.querySelector('[data-menu]');
+        const isOpen = !menu.hidden;
+        menu.hidden = isOpen;
+        document.querySelectorAll('[data-menu-toggle]').forEach(b => {
+          b.setAttribute('aria-expanded', !isOpen);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
