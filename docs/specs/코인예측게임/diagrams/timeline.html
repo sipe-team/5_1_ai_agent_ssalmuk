@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코인 예측 게임 — 출시 타임라인</title>
+<style>
+  body { font-family: -apple-system, "Pretendard", "Spoqa Han Sans Neo", sans-serif; background: #fafafa; color: #1a1a1a; margin: 0; padding: 32px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 24px; }
+  .canvas { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 24px; }
+  svg { width: 100%; height: auto; }
+  .axis { stroke: #525252; stroke-width: 1.5; }
+  .tick { stroke: #525252; stroke-width: 1; }
+  .tick-lbl { font-size: 11px; fill: #525252; text-anchor: middle; }
+  .phase { rx: 6; ry: 6; }
+  .phase-prep { fill: #f5f5f5; stroke: #a3a3a3; }
+  .phase-p0 { fill: #f0f9ff; stroke: #0284c7; }
+  .phase-beta { fill: #fef3c7; stroke: #d97706; }
+  .phase-launch { fill: #f0fdf4; stroke: #16a34a; }
+  .phase-p1 { fill: #ede9fe; stroke: #7c3aed; }
+  .phase-p2 { fill: #fce7f3; stroke: #db2777; }
+  .phase-lbl { font-size: 12px; fill: #1a1a1a; font-weight: 600; }
+  .phase-sub { font-size: 10px; fill: #666; }
+  .milestone { fill: #fff; stroke: #1a1a1a; stroke-width: 2; }
+  .milestone-lbl { font-size: 11px; fill: #1a1a1a; font-weight: 600; }
+  .legend { display: flex; gap: 12px; margin-top: 16px; font-size: 12px; color: #666; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 10px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<h1>코인 예측 게임 — 출시 타임라인</h1>
+<div class="sub">T-2주 ~ T+14주. P0(6채널) → P1(2채널) → P2(시즌제·공유) 단계별 출시</div>
+<div class="canvas">
+<svg viewBox="0 0 1200 380">
+  <!-- Axis -->
+  <line x1="60" y1="320" x2="1140" y2="320" class="axis"/>
+
+  <!-- Ticks -->
+  <g>
+    <line x1="80" y1="316" x2="80" y2="324" class="tick"/>
+    <text x="80" y="345" class="tick-lbl">T-2주</text>
+    <line x1="160" y1="316" x2="160" y2="324" class="tick"/>
+    <text x="160" y="345" class="tick-lbl">T-1주</text>
+    <line x1="240" y1="316" x2="240" y2="324" class="tick"/>
+    <text x="240" y="345" class="tick-lbl">T+0 (킥오프)</text>
+    <line x1="380" y1="316" x2="380" y2="324" class="tick"/>
+    <text x="380" y="345" class="tick-lbl">T+2주</text>
+    <line x1="540" y1="316" x2="540" y2="324" class="tick"/>
+    <text x="540" y="345" class="tick-lbl">T+5주 (베타)</text>
+    <line x1="620" y1="316" x2="620" y2="324" class="tick"/>
+    <text x="620" y="345" class="tick-lbl">T+6주 (P0 출시)</text>
+    <line x1="800" y1="316" x2="800" y2="324" class="tick"/>
+    <text x="800" y="345" class="tick-lbl">T+10주 (P1)</text>
+    <line x1="950" y1="316" x2="950" y2="324" class="tick"/>
+    <text x="950" y="345" class="tick-lbl">T+12주</text>
+    <line x1="1100" y1="316" x2="1100" y2="324" class="tick"/>
+    <text x="1100" y="345" class="tick-lbl">T+14주~ (P2)</text>
+  </g>
+
+  <!-- Phases -->
+  <g>
+    <rect x="80" y="60" width="160" height="32" class="phase phase-prep"/>
+    <text x="160" y="80" class="phase-lbl" text-anchor="middle">킥오프 + 디스커버리</text>
+    <text x="160" y="94" class="phase-sub" text-anchor="middle">사용자 인터뷰 5명, CS 분석</text>
+
+    <rect x="160" y="100" width="160" height="32" class="phase phase-prep"/>
+    <text x="240" y="120" class="phase-lbl" text-anchor="middle">법무 / 라이센스 검토</text>
+    <text x="240" y="134" class="phase-sub" text-anchor="middle">폴리마켓 / X 노출 적법성</text>
+
+    <rect x="240" y="140" width="140" height="32" class="phase phase-p0"/>
+    <text x="310" y="160" class="phase-lbl" text-anchor="middle">P0 설계</text>
+    <text x="310" y="174" class="phase-sub" text-anchor="middle">화면(design-ko) / API / 모델</text>
+
+    <rect x="380" y="180" width="160" height="32" class="phase phase-p0"/>
+    <text x="460" y="200" class="phase-lbl" text-anchor="middle">P0 구현 + 내부 QA</text>
+    <text x="460" y="214" class="phase-sub" text-anchor="middle">8채널 중 6 P0 동작</text>
+
+    <rect x="540" y="220" width="80" height="32" class="phase phase-beta"/>
+    <text x="580" y="240" class="phase-lbl" text-anchor="middle">클로즈드 베타</text>
+    <text x="580" y="254" class="phase-sub" text-anchor="middle">사용자 50명</text>
+
+    <rect x="620" y="60" width="180" height="32" class="phase phase-launch"/>
+    <text x="710" y="80" class="phase-lbl" text-anchor="middle">P0 정식 출시</text>
+    <text x="710" y="94" class="phase-sub" text-anchor="middle">6 P0 + 2 잠금 카드</text>
+
+    <rect x="710" y="100" width="90" height="32" class="phase phase-p1"/>
+    <text x="755" y="120" class="phase-lbl" text-anchor="middle">P1 구현</text>
+    <text x="755" y="134" class="phase-sub" text-anchor="middle">공식 글 / 온체인</text>
+
+    <rect x="800" y="140" width="150" height="32" class="phase phase-p1"/>
+    <text x="875" y="160" class="phase-lbl" text-anchor="middle">P1 출시 + 1차 회고</text>
+    <text x="875" y="174" class="phase-sub" text-anchor="middle">8채널 모두 활성화</text>
+
+    <rect x="950" y="180" width="200" height="32" class="phase phase-p2"/>
+    <text x="1050" y="200" class="phase-lbl" text-anchor="middle">P2 시즌제 / 공유 / 친구</text>
+    <text x="1050" y="214" class="phase-sub" text-anchor="middle">데이터 보고 우선순위</text>
+  </g>
+
+  <!-- Milestones -->
+  <g>
+    <circle cx="540" cy="320" r="6" class="milestone"/>
+    <text x="540" y="304" class="milestone-lbl" text-anchor="middle">⚑ 베타</text>
+
+    <circle cx="620" cy="320" r="6" class="milestone"/>
+    <text x="620" y="304" class="milestone-lbl" text-anchor="middle">🚀 P0 출시</text>
+
+    <circle cx="800" cy="320" r="6" class="milestone"/>
+    <text x="800" y="304" class="milestone-lbl" text-anchor="middle">⚑ 1차 회고</text>
+  </g>
+</svg>
+
+<div class="legend">
+  <span><span class="swatch" style="background:#f5f5f5;border:1px solid #a3a3a3"></span>준비 단계</span>
+  <span><span class="swatch" style="background:#f0f9ff;border:1px solid #0284c7"></span>P0 (1차 범위)</span>
+  <span><span class="swatch" style="background:#fef3c7;border:1px solid #d97706"></span>베타</span>
+  <span><span class="swatch" style="background:#f0fdf4;border:1px solid #16a34a"></span>정식 출시</span>
+  <span><span class="swatch" style="background:#ede9fe;border:1px solid #7c3aed"></span>P1 (2차 출시)</span>
+  <span><span class="swatch" style="background:#fce7f3;border:1px solid #db2777"></span>P2 (확장)</span>
+</div>
+</div>
+</body>
+</html>

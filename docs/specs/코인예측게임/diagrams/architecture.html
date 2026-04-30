@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코인 예측 게임 — 시스템 아키텍처</title>
+<style>
+  body { font-family: -apple-system, "Pretendard", "Spoqa Han Sans Neo", sans-serif; background: #fafafa; color: #1a1a1a; margin: 0; padding: 32px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 24px; }
+  .canvas { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 24px; }
+  svg { width: 100%; height: auto; }
+  .lbl { font-size: 13px; fill: #1a1a1a; font-weight: 600; }
+  .sub-lbl { font-size: 11px; fill: #666; }
+  .pkg { fill: #fff; stroke: #d4d4d4; stroke-width: 1.5; }
+  .pkg-internal { fill: #f0f9ff; stroke: #0284c7; }
+  .pkg-external { fill: #fef3c7; stroke: #d97706; }
+  .pkg-self { fill: #f0fdf4; stroke: #16a34a; }
+  .arrow { stroke: #525252; stroke-width: 1.5; fill: none; }
+  .arrow-dashed { stroke: #999; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+  .group-label { font-size: 11px; fill: #666; font-weight: 600; letter-spacing: 0.5px; }
+  .legend { display: flex; gap: 16px; margin-top: 16px; font-size: 12px; color: #666; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 10px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<h1>코인 예측 게임 — 시스템 아키텍처</h1>
+<div class="sub">8채널 인사이트 + 예측 결과 결산 흐름. 자사 / 외부 데이터 소스 분리.</div>
+<div class="canvas">
+<svg viewBox="0 0 1100 640">
+  <!-- Client Layer -->
+  <text x="40" y="30" class="group-label">CLIENT</text>
+  <rect x="40" y="40" width="220" height="100" rx="10" class="pkg pkg-internal"/>
+  <text x="60" y="65" class="lbl">업비트 앱 / 웹</text>
+  <text x="60" y="85" class="sub-lbl">예측 메인 (S-01)</text>
+  <text x="60" y="100" class="sub-lbl">카드 상세 (S-02)</text>
+  <text x="60" y="115" class="sub-lbl">결과 시트 (S-03/04)</text>
+  <text x="60" y="130" class="sub-lbl">리더보드 (S-07)</text>
+
+  <!-- API Gateway -->
+  <text x="320" y="30" class="group-label">EDGE</text>
+  <rect x="320" y="40" width="160" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="340" y="65" class="lbl">API Gateway</text>
+  <text x="340" y="82" class="sub-lbl">인증 / Rate Limit</text>
+
+  <!-- Core Services -->
+  <text x="540" y="30" class="group-label">CORE SERVICE</text>
+  <rect x="540" y="40" width="200" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="560" y="65" class="lbl">예측 등록 / 결산 서비스</text>
+  <text x="560" y="82" class="sub-lbl">FR-001 / FR-010</text>
+
+  <rect x="540" y="120" width="200" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="560" y="145" class="lbl">티어 산정 서비스</text>
+  <text x="560" y="162" class="sub-lbl">FR-002 (90일 윈도우)</text>
+
+  <rect x="540" y="200" width="200" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="560" y="225" class="lbl">인사이트 어그리게이터</text>
+  <text x="560" y="242" class="sub-lbl">8채널 페치·캐시·정규화</text>
+
+  <!-- Storage / Cache -->
+  <text x="780" y="30" class="group-label">STATE</text>
+  <rect x="780" y="40" width="160" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="800" y="65" class="lbl">예측 DB</text>
+  <text x="800" y="82" class="sub-lbl">PostgreSQL</text>
+
+  <rect x="780" y="120" width="160" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="800" y="145" class="lbl">티어 캐시</text>
+  <text x="800" y="162" class="sub-lbl">Redis</text>
+
+  <rect x="780" y="200" width="160" height="60" rx="10" class="pkg pkg-internal"/>
+  <text x="800" y="225" class="lbl">시그널 캐시</text>
+  <text x="800" y="242" class="sub-lbl">Redis (TTL 5분)</text>
+
+  <!-- Self-owned data sources -->
+  <text x="40" y="320" class="group-label">자사 데이터 (P0)</text>
+  <rect x="40" y="330" width="220" height="50" rx="10" class="pkg pkg-self"/>
+  <text x="60" y="358" class="lbl">업비트 데이터랩</text>
+
+  <rect x="40" y="395" width="220" height="50" rx="10" class="pkg pkg-self"/>
+  <text x="60" y="423" class="lbl">자체 커뮤니티 (투표·코멘트)</text>
+
+  <rect x="40" y="460" width="220" height="50" rx="10" class="pkg pkg-self"/>
+  <text x="60" y="488" class="lbl">예측 고수 리더보드</text>
+
+  <rect x="40" y="525" width="220" height="50" rx="10" class="pkg pkg-self"/>
+  <text x="60" y="553" class="lbl">업비트 기사 피드</text>
+
+  <!-- External data sources -->
+  <text x="320" y="320" class="group-label">외부 데이터</text>
+  <rect x="320" y="330" width="200" height="50" rx="10" class="pkg pkg-external"/>
+  <text x="340" y="358" class="lbl">X / Telegram (P0)</text>
+
+  <rect x="320" y="395" width="200" height="50" rx="10" class="pkg pkg-external"/>
+  <text x="340" y="423" class="lbl">Polymarket API (P0)</text>
+
+  <rect x="320" y="460" width="200" height="50" rx="10" class="pkg pkg-external"/>
+  <text x="340" y="488" class="lbl">Bitcoin.org / Ethereum.org (P1)</text>
+
+  <rect x="320" y="525" width="200" height="50" rx="10" class="pkg pkg-external"/>
+  <text x="340" y="553" class="lbl">Dune + Glassnode (P1)</text>
+
+  <!-- Notification / Trading -->
+  <text x="600" y="320" class="group-label">CROSS-CUTTING</text>
+  <rect x="600" y="330" width="200" height="50" rx="10" class="pkg pkg-internal"/>
+  <text x="620" y="358" class="lbl">푸시 알림 (FR-010/014/015)</text>
+
+  <rect x="600" y="395" width="200" height="50" rx="10" class="pkg pkg-internal"/>
+  <text x="620" y="423" class="lbl">업비트 거래 화면 딥링크</text>
+
+  <rect x="600" y="460" width="200" height="50" rx="10" class="pkg pkg-internal"/>
+  <text x="620" y="488" class="lbl">시세 API (스냅샷)</text>
+
+  <rect x="600" y="525" width="200" height="50" rx="10" class="pkg pkg-internal"/>
+  <text x="620" y="553" class="lbl">KYC / 19+ 게이트</text>
+
+  <!-- Arrows -->
+  <path d="M 260 90 L 320 70" class="arrow" marker-end="url(#a)"/>
+  <path d="M 480 70 L 540 70" class="arrow" marker-end="url(#a)"/>
+  <path d="M 740 70 L 780 70" class="arrow" marker-end="url(#a)"/>
+  <path d="M 740 150 L 780 150" class="arrow" marker-end="url(#a)"/>
+  <path d="M 740 230 L 780 230" class="arrow" marker-end="url(#a)"/>
+  <path d="M 640 100 L 640 120" class="arrow" marker-end="url(#a)"/>
+
+  <!-- Aggregator pulls -->
+  <path d="M 540 230 Q 400 270 260 355" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 460 290 260 420" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 460 320 260 485" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 460 350 260 550" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 480 290 320 355" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 480 320 320 420" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 480 350 320 485" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 540 230 Q 480 380 320 550" class="arrow-dashed" marker-end="url(#b)"/>
+
+  <!-- Core service to cross-cutting -->
+  <path d="M 640 100 L 640 200" class="arrow" marker-end="url(#a)"/>
+  <path d="M 640 180 Q 660 270 700 330" class="arrow-dashed" marker-end="url(#b)"/>
+  <path d="M 640 100 Q 700 200 700 460" class="arrow-dashed" marker-end="url(#b)"/>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#525252"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#999"/>
+    </marker>
+  </defs>
+</svg>
+<div class="legend">
+  <span><span class="swatch" style="background:#f0f9ff;border:1px solid #0284c7"></span>업비트 내부 시스템</span>
+  <span><span class="swatch" style="background:#f0fdf4;border:1px solid #16a34a"></span>자사 데이터 (P0)</span>
+  <span><span class="swatch" style="background:#fef3c7;border:1px solid #d97706"></span>외부 데이터 (P0/P1)</span>
+  <span><span class="swatch" style="background:#fff;border:1px dashed #999"></span>비동기 페치 (캐시)</span>
+</div>
+</div>
+</body>
+</html>
